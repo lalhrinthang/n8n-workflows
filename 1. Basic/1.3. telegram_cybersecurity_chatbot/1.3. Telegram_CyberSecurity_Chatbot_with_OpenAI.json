@@ -1,0 +1,416 @@
+{
+  "name": "Telegram_CyberSecurityChatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "eafad8be-a16d-4963-b0ae-fcfd7edf86a0",
+      "name": "Telegram Trigger",
+      "webhookId": "69587ccb-05c4-4e3f-9acf-16e3d333d39a",
+      "alwaysOutputData": true,
+      "notesInFlow": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "WtxLo7bppEWjteXS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "02f882ce-18ec-41f3-a827-17f6dcc6daa5",
+              "name": "message.chat.id",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "c4751a37-f215-46b8-85f6-baceeab06856",
+              "name": "message.chat.first_name",
+              "value": "={{ $json.message.chat.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "a2cf6fe4-0412-4c8a-ac81-8a637b6e432a",
+              "name": "message.text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e7650efe-e93d-462b-9e77-2deb6f609838",
+      "name": "Extract User Message",
+      "alwaysOutputData": true,
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "626e088a-4cc5-421f-91f9-3c9fa5b1b0a1",
+              "name": "message.text",
+              "value": "={{ $json.message.text.toLowerCase()}}",
+              "type": "string"
+            },
+            {
+              "id": "2f1e256f-3432-4030-b99d-aa30ca1a49a1",
+              "name": "message.chat.id",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "7b8a7754-f87a-4d44-87a8-786bf52ad2c1",
+              "name": "message.chat.first_name",
+              "value": "={{ $json.message.chat.first_name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "3ee54d7a-5c31-4101-ab82-8d20781f5cda",
+      "name": "Normalize Text"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7b037f63-b707-423a-abde-1cac306d5361",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "phishing",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "963c8036-aaa0-4b51-8f68-78c9ce312e08",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "malware",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "adf753d4-17ca-4e74-9194-07fd4146a046",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "password",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "96843ddf-2942-4869-8a9d-0195dd8cae9d",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "cyber",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "daf6218b-8fdb-431d-84f9-955890f350d6",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "security",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "2cc4d7de-f5be-4714-9207-61271f271846",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "firewall",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "46160f3b-cdc6-4651-9acf-dd36057ac285",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "vpn",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "f3cfe9d0-01f6-40bb-9524-74de25168000",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "login",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "8b7ec79a-9a0d-409e-9411-b10a5c0ffa88",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "logout",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        -128
+      ],
+      "id": "711bd0c8-b193-49ff-8aaa-370203e1a11c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "🤖 Cyber Security Assistant  \nI can only help with cybersecurity–related topics such as: \n• Phishing\n• Malware \n• Password safety \n• Online security \n• Privacy  \nPlease ask a cybersecurity question!",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        96
+      ],
+      "id": "52acf170-bb2e-4b75-adfd-29ea355a6860",
+      "name": "Send a text message",
+      "webhookId": "322ee2b8-3110-486c-8306-7b26866b1de0",
+      "alwaysOutputData": true,
+      "notesInFlow": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "WtxLo7bppEWjteXS",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a Cyber Security Awareness Assistant.\n\nYour role:\n- Answer ONLY cybersecurity-related questions\n- Provide defensive, educational explanations\n- Focus on phishing, malware, passwords, privacy, and online safety\n\nStrict rules:\n- Do NOT provide hacking instructions\n- Do NOT explain how to bypass security\n- Do NOT generate exploit code\n- If the question is not about cybersecurity, reply:\n  \"I can only assist with cybersecurity-related topics.\"\n\nTone:\n- Clear\n- Beginner-friendly\n- Educational\n\nReply Format: Please reply to the response in a clean and readable format\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1072,
+        -320
+      ],
+      "id": "1d2fdfec-3d39-40da-b8a6-1d3f092da8ca",
+      "name": "AI Agent",
+      "alwaysOutputData": true,
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1008,
+        -112
+      ],
+      "id": "3bcac957-cbe4-4ff4-9754-0e366160cbba",
+      "name": "OpenAI Chat Model",
+      "alwaysOutputData": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "mSoNoW6WvuSVmYQy",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.text }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1344,
+        -80
+      ],
+      "id": "1d281185-ba31-4858-a7c0-8a1752ba9535",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('If').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1408,
+        -320
+      ],
+      "id": "a482afdb-705e-40c1-8ae1-5a9781718736",
+      "name": "Send a text message1",
+      "webhookId": "d74a6f90-31bc-434f-99ac-cc0201501257",
+      "credentials": {
+        "telegramApi": {
+          "id": "WtxLo7bppEWjteXS",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract User Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract User Message": {
+      "main": [
+        [
+          {
+            "node": "Normalize Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Text": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "7cac7b98-2bfe-4413-87fd-8c63f4b67f8b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a6850f89ca602e87af9ed2767340f7e5a3d5921744d584b6b3cb71ef5b315994"
+  },
+  "id": "1i3cTZiOmjiJYQsx",
+  "tags": []
+}
