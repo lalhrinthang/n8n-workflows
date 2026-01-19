@@ -250,22 +250,3 @@ I can provide cyber security education and awareness, but I can’t assist with 
 The **AI Cyber Security Q&A Chatbot** demonstrates a **SOC-aligned, ethically controlled AI system** focused on **security awareness and user education**.
 
 By combining automation, AI guardrails, and strict topic control, the system provides a **safe and effective learning tool** suitable for academic, training, and entry-level SOC environments.
-
----
-
-## 📌 Portfolio One-Liner (Highly Recommended)
-
-> Designed and implemented a guardrailed AI-powered Cyber Security Awareness Chatbot using n8n and OpenAI, enforcing strict topic validation and ethical controls to prevent misuse.
-
-🔥 This is **excellent** for CVs and interviews.
-
----
-
-If you want next, I can:
-
-* 📄 Convert this into **PDF / academic format**
-* 🧠 Map it to **MITRE ATT&CK**
-* 📊 Add **risk classification**
-* 🎓 Turn it into a **final-year project report**
-
-Just tell me 👍
