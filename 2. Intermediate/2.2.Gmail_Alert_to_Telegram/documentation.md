@@ -120,29 +120,29 @@ Bot token stored in n8n credentials
 Chat ID obtained via Telegram tools
 
 ## 🧪 Testing Procedure
-Send a test email to the monitored Gmail inbox
-Include a keyword such as “Urgent Payment Notice”
-Verify:
-Gmail trigger activates
-Keyword filter passes
-Telegram alert is received
+1. Send a test email to the monitored Gmail inbox
+2. Include a keyword such as “Urgent Payment Notice”
+3. Verify:
+- Gmail trigger activates
+- Keyword filter passes
+4. Telegram alert is received
 
 ## 🛡 Security Considerations
-Gmail access limited to necessary scopes
-API tokens stored securely in n8n credentials
-No email content stored outside workflow execution
-Alert spam reduced via keyword filtering
+* Gmail access limited to necessary scopes
+* API tokens stored securely in n8n credentials
+* No email content stored outside workflow execution
+* Alert spam reduced via keyword filtering
 
 ## 🚀 Limitations (Version 1)
-Relies on static keywords
-May miss context-based importance
-Cannot classify priority levels
-No AI-based understanding
-These limitations are addressed in future versions.
+* Relies on static keywords
+* May miss context-based importance
+* Cannot classify priority levels
+* No AI-based understanding
+* These limitations are addressed in future versions.
 
 ## 🔄 Planned Enhancements
-Version 2: AI-based importance detection (LLM)
-Version 3: Multi-channel alerts (WhatsApp, Messenger)
-Version 4: Risk scoring & SOC dashboard
-Version 5: Multi-user routing & audit logs
-
+Version 2: AI-based importance detection (LLM)  
+Version 3: Multi-channel alerts (WhatsApp, Messenger)  
+Version 4: Risk scoring & SOC dashboard  
+Version 5: Multi-user routing & audit logs  
+ 
