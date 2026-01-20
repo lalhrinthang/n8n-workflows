@@ -1,0 +1,225 @@
+{
+  "name": "Gmail Alerts to Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "38dcf202-905d-421c-a652-cf1e29a89e79",
+      "name": "Gmail Trigger",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "N0vFuTuGtNyaPkPo",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a9c9d955-bef4-4678-b0ad-1e402c6af8aa",
+              "name": "email_text",
+              "value": "={{($json.Subject+ \" \" +$json.snippet).toLowerCase()}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4fc4a220-a5e4-492c-959b-32e4f741c885",
+      "name": "Text Normalization"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5a60f19c-9e3b-4c0b-9e37-6e397162115a",
+              "leftValue": "={{ $json.email_text }}",
+              "rightValue": "financial aid",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "39cd0592-49a2-44c7-a60c-c17553ee4c90",
+              "leftValue": "={{ $json.email_text }}",
+              "rightValue": "internship",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "304de0ca-4244-459d-9ff1-207bc44bddff",
+              "leftValue": "={{ $json.email_text }}",
+              "rightValue": "urgent",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "7b8f8590-c1ac-4a0c-a04b-77744a285f1b",
+              "leftValue": "={{ $json.email_text }}",
+              "rightValue": "security alert",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "d9446a3b-5ba9-4205-9896-badf880cdd03",
+      "name": "Keyword Filter"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "64b38b76-9b02-49b8-83b4-b3fdac538f4e",
+              "name": "alert_message",
+              "value": "=🚨 *Important Email Alert*  \n\n📩 *From:* {{ $('Gmail Trigger').item.json.From }}\n📝 *Subject:* {{ $('Gmail Trigger').item.json.Subject }}\n📌 *Preview:* {{ $('Gmail Trigger').item.json.snippet }}\n⏰ *Received:*  {{ $('Gmail Trigger').item.json.internalDate }}\n\n🔒 Auto-alert via n8n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        -160
+      ],
+      "id": "295623e6-5786-4a4e-9c25-0793682c5567",
+      "name": "Alert Message Formatter"
+    },
+    {
+      "parameters": {
+        "chatId": "5142024965",
+        "text": "={{ $json.alert_message }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        848,
+        -160
+      ],
+      "id": "baf40691-c239-441b-9c11-829cf8c82910",
+      "name": "Send message",
+      "webhookId": "a8c368f3-a100-4506-aa2a-86cb0075a36a",
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "ccJSEgSbAxySZ7ju",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Normalization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Normalization": {
+      "main": [
+        [
+          {
+            "node": "Keyword Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keyword Filter": {
+      "main": [
+        [
+          {
+            "node": "Alert Message Formatter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Alert Message Formatter": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "7a4897a3-ac79-4d7e-998b-05f98c3fc73b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f9872bd04cac40c32fa3c82ef845e0015bfc59ab2c09009e0976ce0ebcc71733"
+  },
+  "id": "WSLFHSyzNeXLSJWWQV4xu",
+  "tags": []
+}
