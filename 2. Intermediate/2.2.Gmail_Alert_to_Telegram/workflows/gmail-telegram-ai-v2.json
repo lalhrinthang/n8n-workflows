@@ -1,5 +1,5 @@
 {
-  "name": "Gmail Alerts to Telegram",
+  "name": "Gmail Alerts to Telegram version 2",
   "nodes": [
     {
       "parameters": {
@@ -36,7 +36,7 @@
             {
               "id": "64b38b76-9b02-49b8-83b4-b3fdac538f4e",
               "name": "alert_message",
-              "value": "=🚨 *Important Email Alert*  \n\n📩 *From:* {{ $('Text Normalization').item.json.email_from }}\n📝 *Subject:* {{ $('Text Normalization').item.json.email_subject }}\n📌 *Preview:* {{ $('Text Normalization').item.json.email_text }}\n⏰ *Received:* {{ $('Text Normalization').item.json.email_received_time }}\n\n🔒 Auto-alert via n8n",
+              "value": "=🚨 *AI-Detected Important Email*  \n📊 *Priority:*  {{ $('Parse AI Output').item.json.importance_level }}\n🧠 *AI Reason:*{{ $('Parse AI Output').item.json.ai_reason }}\n📩 *From:* {{ $('Text Normalization').item.json.email_from }}\n📝 *Subject:* {{ $('Text Normalization').item.json.email_subject }}\n\n📌 *Preview:* {{ $('Text Normalization').item.json.email_text }}\n\n⏰ *Received:* {{ $('Text Normalization').item.json.email_received_time }}\n\n🔒 Auto-alert via n8n",
               "type": "string"
             }
           ]
@@ -74,7 +74,7 @@
       "credentials": {
         "telegramApi": {
           "id": "",
-          "name": "Telegram Bot API"
+          "name": "Telegram bot account"
         }
       }
     },
@@ -121,76 +121,6 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "key",
-              "value": "your_gemini_api_key_here"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"You are an email priority classification assistant.\\n\\nClassify the following email and return ONLY valid JSON.\\n\\nRules:\\n- important: true or false\\n- level: HIGH, MEDIUM, or LOW\\n- reason: short explanation\\n\\nIMPORTANT topics include:\\nfinancial aid, payments, scholarships, internships, urgent deadlines.\\n\\nEmail:\\nFrom: {{ $json.email_from }}\\nSubject: {{ $json.email_subject }} \\nBody: {{ $json.email_text }}\\n\\n Email_Received Time:{{ $json.email_received_time }} \\n\\n JSON format:\\n{\\n  \\\"important\\\": true,\\n  \\\"level\\\": \\\"HIGH\\\",\\n  \\\"reason\\\": \\\"...\\\"\\n}\"\n        }\n      ]\n    }\n  ]\n}\n",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        416,
-        0
-      ],
-      "id": "ba9fd313-08f2-4a22-a31b-449c598c9bdb",
-      "name": "HTTP Request",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "CGQgHmJUcn0zDbUd",
-          "name": "Header Auth account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "62f39222-0e6a-44e2-975d-e29f8d6bfa1d",
-              "name": "=important",
-              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json|```/g, \"\").trim()).important }}",
-              "type": "string"
-            },
-            {
-              "id": "edb03441-6d84-49c1-ba91-3ae8cc168ff7",
-              "name": "=importance_level",
-              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json|```/g, \"\").trim()).level }}",
-              "type": "string"
-            },
-            {
-              "id": "9df0bf3f-3a85-4c36-a5f4-9c3457b4a347",
-              "name": "=ai_reason",
-              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json|```/g, \"\").trim()).reason }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        624,
-        0
-      ],
-      "id": "59a99739-3d1d-4802-b9e9-f72b1b9f0fbc",
-      "name": "Edit Fields"
-    },
-    {
-      "parameters": {
         "conditions": {
           "options": {
             "caseSensitive": true,
@@ -229,7 +159,77 @@
         0
       ],
       "id": "fc32d3e4-d58c-4f12-8762-71f0dad0dd05",
-      "name": "If"
+      "name": "checking condition"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "62f39222-0e6a-44e2-975d-e29f8d6bfa1d",
+              "name": "=important",
+              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json|```/g, \"\").trim()).important }}",
+              "type": "string"
+            },
+            {
+              "id": "edb03441-6d84-49c1-ba91-3ae8cc168ff7",
+              "name": "=importance_level",
+              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json|```/g, \"\").trim()).level }}",
+              "type": "string"
+            },
+            {
+              "id": "9df0bf3f-3a85-4c36-a5f4-9c3457b4a347",
+              "name": "=ai_reason",
+              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json|```/g, \"\").trim()).reason }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "59a99739-3d1d-4802-b9e9-f72b1b9f0fbc",
+      "name": "Parse AI Output"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": ""
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"You are an email priority classification assistant.\\n\\nClassify the following email and return ONLY valid JSON.\\n\\nRules:\\n- important: true or false\\n- level: HIGH, MEDIUM, or LOW\\n- reason: short explanation\\n\\nIMPORTANT topics include:\\nfinancial aid, payments, scholarships, internships, urgent deadlines.\\n\\nEmail:\\nFrom: {{ $json.email_from }}\\nSubject: {{ $json.email_subject }} \\nBody: {{ $json.email_text }}\\n\\n Email_Received Time:{{ $json.email_received_time }} \\n\\n JSON format:\\n{\\n  \\\"important\\\": true,\\n  \\\"level\\\": \\\"HIGH\\\",\\n  \\\"reason\\\": \\\"...\\\"\\n}\"\n        }\n      ]\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "ba9fd313-08f2-4a22-a31b-449c598c9bdb",
+      "name": "HTTP Request AI Classifier",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CGQgHmJUcn0zDbUd",
+          "name": "Header Auth account"
+        }
+      }
     }
   ],
   "pinData": {
@@ -238,7 +238,7 @@
         "json": {
           "id": "19bdf78fc23f191b",
           "threadId": "19bdf78fc23f191b",
-          "snippet": "",
+          "snippet": "Do not block, allow the picture to load mi.com &gt; Do not block, allow the picture to load Unsubscribe click to unsubscribe",
           "payload": {
             "mimeType": "multipart/mixed"
           },
@@ -259,9 +259,9 @@
               "name": "UNREAD"
             }
           ],
-          "From": "",
-          "To": "",
-          "Subject": ""
+          "From": "Mi Malaysia <noreply@m.xiaomi.com>",
+          "To": "lalhrinthang@gmail.com",
+          "Subject": "REDMI Note 15 Series is Coming"
         },
         "pairedItem": {
           "item": 0
@@ -296,40 +296,40 @@
       "main": [
         [
           {
-            "node": "HTTP Request",
+            "node": "HTTP Request AI Classifier",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "HTTP Request": {
-      "main": [
-        [
-          {
-            "node": "Edit Fields",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Edit Fields": {
-      "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If": {
+    "checking condition": {
       "main": [
         [
           {
             "node": "Alert Message Formatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Output": {
+      "main": [
+        [
+          {
+            "node": "checking condition",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request AI Classifier": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Output",
             "type": "main",
             "index": 0
           }
@@ -342,7 +342,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "00f06c32-fb51-4749-9bd3-29e8f2559e5f",
+  "versionId": "d130126a-3b81-43d6-be5b-f4fd49126a87",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "f9872bd04cac40c32fa3c82ef845e0015bfc59ab2c09009e0976ce0ebcc71733"
