@@ -1,0 +1,352 @@
+{
+  "name": "Gmail Alerts to Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "38dcf202-905d-421c-a652-cf1e29a89e79",
+      "name": "Gmail Trigger",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": ""
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "64b38b76-9b02-49b8-83b4-b3fdac538f4e",
+              "name": "alert_message",
+              "value": "=🚨 *Important Email Alert*  \n\n📩 *From:* {{ $('Text Normalization').item.json.email_from }}\n📝 *Subject:* {{ $('Text Normalization').item.json.email_subject }}\n📌 *Preview:* {{ $('Text Normalization').item.json.email_text }}\n⏰ *Received:* {{ $('Text Normalization').item.json.email_received_time }}\n\n🔒 Auto-alert via n8n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        -160
+      ],
+      "id": "295623e6-5786-4a4e-9c25-0793682c5567",
+      "name": "Alert Message Formatter"
+    },
+    {
+      "parameters": {
+        "chatId": "5142024965",
+        "text": "={{ $json.alert_message }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1264,
+        -224
+      ],
+      "id": "baf40691-c239-441b-9c11-829cf8c82910",
+      "name": "Send message",
+      "webhookId": "a8c368f3-a100-4506-aa2a-86cb0075a36a",
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a9c9d955-bef4-4678-b0ad-1e402c6af8aa",
+              "name": "email_text",
+              "value": "={{ $json.snippet.toLowerCase() }}",
+              "type": "string"
+            },
+            {
+              "id": "b00049c5-e8ef-4e07-81e5-2635213f20c0",
+              "name": "email_subject",
+              "value": "={{ $json.Subject.toLowerCase() }}",
+              "type": "string"
+            },
+            {
+              "id": "a227a006-f0c1-422c-935c-e7557ba82041",
+              "name": "email_received_time",
+              "value": "={{ DateTime.fromMillis(parseInt($json.internalDate)).toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            },
+            {
+              "id": "0d6ada29-6bff-4e42-a0f0-d39716460621",
+              "name": "email_from",
+              "value": "={{ $json.From }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4fc4a220-a5e4-492c-959b-32e4f741c885",
+      "name": "Text Normalization"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "your_gemini_api_key_here"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\n          \"text\": \"You are an email priority classification assistant.\\n\\nClassify the following email and return ONLY valid JSON.\\n\\nRules:\\n- important: true or false\\n- level: HIGH, MEDIUM, or LOW\\n- reason: short explanation\\n\\nIMPORTANT topics include:\\nfinancial aid, payments, scholarships, internships, urgent deadlines.\\n\\nEmail:\\nFrom: {{ $json.email_from }}\\nSubject: {{ $json.email_subject }} \\nBody: {{ $json.email_text }}\\n\\n Email_Received Time:{{ $json.email_received_time }} \\n\\n JSON format:\\n{\\n  \\\"important\\\": true,\\n  \\\"level\\\": \\\"HIGH\\\",\\n  \\\"reason\\\": \\\"...\\\"\\n}\"\n        }\n      ]\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "ba9fd313-08f2-4a22-a31b-449c598c9bdb",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CGQgHmJUcn0zDbUd",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "62f39222-0e6a-44e2-975d-e29f8d6bfa1d",
+              "name": "=important",
+              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json|```/g, \"\").trim()).important }}",
+              "type": "string"
+            },
+            {
+              "id": "edb03441-6d84-49c1-ba91-3ae8cc168ff7",
+              "name": "=importance_level",
+              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json|```/g, \"\").trim()).level }}",
+              "type": "string"
+            },
+            {
+              "id": "9df0bf3f-3a85-4c36-a5f4-9c3457b4a347",
+              "name": "=ai_reason",
+              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json|```/g, \"\").trim()).reason }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "59a99739-3d1d-4802-b9e9-f72b1b9f0fbc",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0e4317b2-596d-4aa0-9376-b9bb7a47ba47",
+              "leftValue": "={{ $json.important }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "3a00408a-2a42-4ac7-9be4-3a98b827b83e",
+              "leftValue": "={{ $json.importance_level }}",
+              "rightValue": "LOW",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        0
+      ],
+      "id": "fc32d3e4-d58c-4f12-8762-71f0dad0dd05",
+      "name": "If"
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "19bdf78fc23f191b",
+          "threadId": "19bdf78fc23f191b",
+          "snippet": "",
+          "payload": {
+            "mimeType": "multipart/mixed"
+          },
+          "sizeEstimate": 11653,
+          "historyId": "5907352",
+          "internalDate": "1768980806000",
+          "labels": [
+            {
+              "id": "INBOX",
+              "name": "INBOX"
+            },
+            {
+              "id": "CATEGORY_PROMOTIONS",
+              "name": "CATEGORY_PROMOTIONS"
+            },
+            {
+              "id": "UNREAD",
+              "name": "UNREAD"
+            }
+          ],
+          "From": "",
+          "To": "",
+          "Subject": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Normalization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Message Formatter": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Normalization": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Alert Message Formatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "00f06c32-fb51-4749-9bd3-29e8f2559e5f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f9872bd04cac40c32fa3c82ef845e0015bfc59ab2c09009e0976ce0ebcc71733"
+  },
+  "id": "WSLFHSyzNeXLSJWWQV4xu",
+  "tags": []
+}
